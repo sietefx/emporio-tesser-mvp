@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Papel {
+  GERENTE
+  COZINHA
+}
+
+enum StatusNota {
+  PENDENTE
+  APROVADA
+}
+
+model Usuario {
+  id                  Int      @id @default(autoincrement())
+  nome                String
+  email               String   @unique
+  senhaHash           String
+  papel               Papel
+  ativo               Boolean  @default(true)
+  // sessões emitidas antes desta data deixam de valer (logout em todos os aparelhos)
+  sessoesValidasDesde DateTime @default(now())
+  criadoEm            DateTime @default(now())
+
+  notasAprovadas NotaCompra[]
+}
+
+model Fornecedor {
+  id    Int    @id @default(autoincrement())
+  cnpj  String @unique
+  nome  String
+
+  notas    NotaCompra[]
+  vinculos VinculoFornecedor[]
+  contas   ContaPagar[]
+}
+
+model Insumo {
+  id            Int      @id @default(autoincrement())
+  nome          String   @unique
+  unidade       String
+  custoUnitario Decimal? @db.Decimal(12, 4)
+  saldo         Decimal  @default(0) @db.Decimal(12, 3)
+
+  itensNota   ItemNota[]
+  vinculos    VinculoFornecedor[]
+  movimentos  MovimentoEstoque[]
+  fichaItens  FichaItem[]
+}
+
+model NotaCompra {
+  id               Int        @id @default(autoincrement())
+  chave            String     @unique
+  xmlHash          String     @unique
+  numero           String
+  serie            String
+  emitidaEm        DateTime
+  destinatarioCnpj String
+  valorTotal       Decimal    @db.Decimal(12, 2)
+  status           StatusNota @default(PENDENTE)
+  xml              String
+  recebidaEm       DateTime   @default(now())
+  aprovadaEm       DateTime?
+
+  fornecedorId  Int
+  fornecedor    Fornecedor @relation(fields: [fornecedorId], references: [id])
+  aprovadaPorId Int?
+  aprovadaPor   Usuario?   @relation(fields: [aprovadaPorId], references: [id])
+
+  itens      ItemNota[]
+  parcelas   ParcelaNota[]
+  movimentos MovimentoEstoque[]
+  contas     ContaPagar[]
+
+  @@index([status])
+}
+
+model ItemNota {
+  id                 Int      @id @default(autoincrement())
+  numeroItem         Int
+  codigoProduto      String
+  descricao          String
+  ean                String?
+  quantidade         Decimal  @db.Decimal(12, 4)
+  unidade            String
+  valorTotal         Decimal  @db.Decimal(12, 2)
+  fatorConversao     Decimal  @default(1) @db.Decimal(12, 4)
+  quantidadeRecebida Decimal? @db.Decimal(12, 4)
+
+  notaId   Int
+  nota     NotaCompra @relation(fields: [notaId], references: [id], onDelete: Cascade)
+  insumoId Int?
+  insumo   Insumo?    @relation(fields: [insumoId], references: [id])
+
+  @@unique([notaId, numeroItem])
+}
+
+model ParcelaNota {
+  id         Int      @id @default(autoincrement())
+  numero     String
+  vencimento DateTime
+  valor      Decimal  @db.Decimal(12, 2)
+
+  notaId Int
+  nota   NotaCompra @relation(fields: [notaId], references: [id], onDelete: Cascade)
+}
+
+// lembra a ligação item do fornecedor -> insumo para sugerir nas próximas notas
+model VinculoFornecedor {
+  id             Int     @id @default(autoincrement())
+  codigoProduto  String
+  fatorConversao Decimal @default(1) @db.Decimal(12, 4)
+
+  fornecedorId Int
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id])
+  insumoId     Int
+  insumo       Insumo     @relation(fields: [insumoId], references: [id])
+
+  @@unique([fornecedorId, codigoProduto])
+}
+
+model MovimentoEstoque {
+  id            Int      @id @default(autoincrement())
+  quantidade    Decimal  @db.Decimal(12, 3)
+  custoUnitario Decimal  @db.Decimal(12, 4)
+  custoAnterior Decimal? @db.Decimal(12, 4)
+  criadoEm      DateTime @default(now())
+
+  insumoId Int
+  insumo   Insumo      @relation(fields: [insumoId], references: [id])
+  notaId   Int?
+  nota     NotaCompra? @relation(fields: [notaId], references: [id])
+}
+
+model ContaPagar {
+  id         Int      @id @default(autoincrement())
+  descricao  String
+  valor      Decimal  @db.Decimal(12, 2)
+  vencimento DateTime
+  paga       Boolean  @default(false)
+
+  notaId       Int
+  nota         NotaCompra @relation(fields: [notaId], references: [id])
+  fornecedorId Int
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id])
+}
+
+model Prato {
+  id            Int     @id @default(autoincrement())
+  nome          String  @unique
+  precoSalao    Decimal @db.Decimal(10, 2)
+  precoDelivery Decimal @db.Decimal(10, 2)
+
+  ficha FichaItem[]
+}
+
+model FichaItem {
+  id              Int     @id @default(autoincrement())
+  descricao       String
+  quantidade      Decimal @db.Decimal(12, 4)
+  perdaPercentual Decimal @default(0) @db.Decimal(5, 2)
+
+  pratoId  Int
+  prato    Prato   @relation(fields: [pratoId], references: [id], onDelete: Cascade)
+  // null = ingrediente ainda sem insumo ligado (ficha incompleta)
+  insumoId Int?
+  insumo   Insumo? @relation(fields: [insumoId], references: [id])
+}
+
+// recebimentos de cartão/PIX vindos das vendas; aqui só o necessário para o alerta de conciliação
+model Recebimento {
+  id         Int      @id @default(autoincrement())
+  data       DateTime
+  forma      String
+  valor      Decimal  @db.Decimal(12, 2)
+  conciliado Boolean  @default(false)
+}

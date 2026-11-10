@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NF-e fictícia, usada só para teste do MVP -->
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+  <NFe>
+    <infNFe Id="NFe42261112345678000190550010000045121100045127" versao="4.00">
+      <ide>
+        <cUF>42</cUF>
+        <natOp>VENDA DE MERCADORIA</natOp>
+        <mod>55</mod>
+        <serie>1</serie>
+        <nNF>4512</nNF>
+        <dhEmi>2026-11-09T07:42:00-03:00</dhEmi>
+        <tpNF>1</tpNF>
+      </ide>
+      <emit>
+        <CNPJ>12345678000190</CNPJ>
+        <xNome>HORTIFRUTI SERRA VERDE LTDA</xNome>
+      </emit>
+      <dest>
+        <CNPJ>99888777000166</CNPJ>
+        <xNome>RESTAURANTE DEMONSTRACAO LTDA</xNome>
+      </dest>
+      <det nItem="1">
+        <prod>
+          <cProd>1020</cProd>
+          <cEAN>7891000100103</cEAN>
+          <xProd>TOMATE ITALIANO CX 20KG</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>CX</uCom>
+          <qCom>1.0000</qCom>
+          <vUnCom>158.0000</vUnCom>
+          <vProd>158.00</vProd>
+        </prod>
+      </det>
+      <det nItem="2">
+        <prod>
+          <cProd>1044</cProd>
+          <cEAN>SEM GTIN</cEAN>
+          <xProd>CEBOLA ROXA KG</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>KG</uCom>
+          <qCom>10.0000</qCom>
+          <vUnCom>6.5000</vUnCom>
+          <vProd>65.00</vProd>
+        </prod>
+      </det>
+      <det nItem="3">
+        <prod>
+          <cProd>1102</cProd>
+          <cEAN>SEM GTIN</cEAN>
+          <xProd>MANJERICAO GENOVES MC</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>MC</uCom>
+          <qCom>12.0000</qCom>
+          <vUnCom>4.5000</vUnCom>
+          <vProd>54.00</vProd>
+        </prod>
+      </det>
+      <total>
+        <ICMSTot>
+          <vProd>277.00</vProd>
+          <vNF>277.00</vNF>
+        </ICMSTot>
+      </total>
+      <cobr>
+        <dup><nDup>001</nDup><dVenc>2026-11-24</dVenc><vDup>277.00</vDup></dup>
+      </cobr>
+    </infNFe>
+  </NFe>
+</nfeProc>

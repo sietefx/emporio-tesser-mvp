@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NF-e fictícia, usada só para teste do MVP -->
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+  <NFe>
+    <infNFe Id="NFe42261123456789000101550010000088301100088307" versao="4.00">
+      <ide>
+        <cUF>42</cUF>
+        <natOp>VENDA DE MERCADORIA</natOp>
+        <mod>55</mod>
+        <serie>1</serie>
+        <nNF>8830</nNF>
+        <dhEmi>2026-11-08T15:10:00-03:00</dhEmi>
+        <tpNF>1</tpNF>
+      </ide>
+      <emit>
+        <CNPJ>23456789000101</CNPJ>
+        <xNome>LATICINIOS VALE DO OESTE LTDA</xNome>
+      </emit>
+      <dest>
+        <CNPJ>99888777000166</CNPJ>
+        <xNome>RESTAURANTE DEMONSTRACAO LTDA</xNome>
+      </dest>
+      <det nItem="1">
+        <prod>
+          <cProd>220</cProd>
+          <cEAN>7896000200207</cEAN>
+          <xProd>QUEIJO PARMESAO PECA KG</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>KG</uCom>
+          <qCom>3.2000</qCom>
+          <vUnCom>117.0000</vUnCom>
+          <vProd>374.40</vProd>
+        </prod>
+      </det>
+      <det nItem="2">
+        <prod>
+          <cProd>231</cProd>
+          <cEAN>7896000200214</cEAN>
+          <xProd>MUCARELA DE BUFALA 250G</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>UN</uCom>
+          <qCom>8.0000</qCom>
+          <vUnCom>18.9000</vUnCom>
+          <vProd>151.20</vProd>
+        </prod>
+      </det>
+      <total>
+        <ICMSTot>
+          <vProd>525.60</vProd>
+          <vNF>525.60</vNF>
+        </ICMSTot>
+      </total>
+      <cobr>
+        <dup><nDup>001</nDup><dVenc>2026-11-22</dVenc><vDup>525.60</vDup></dup>
+      </cobr>
+    </infNFe>
+  </NFe>
+</nfeProc>

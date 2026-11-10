@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NF-e fictícia, usada só para teste do MVP -->
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+  <NFe>
+    <infNFe Id="NFe42261134567890000112550010000152071100152077" versao="4.00">
+      <ide>
+        <cUF>42</cUF>
+        <natOp>VENDA DE MERCADORIA</natOp>
+        <mod>55</mod>
+        <serie>1</serie>
+        <nNF>15207</nNF>
+        <dhEmi>2026-11-07T10:05:00-03:00</dhEmi>
+        <tpNF>1</tpNF>
+      </ide>
+      <emit>
+        <CNPJ>34567890000112</CNPJ>
+        <xNome>DISTRIBUIDORA GRAO FINO LTDA</xNome>
+      </emit>
+      <dest>
+        <CNPJ>99888777000166</CNPJ>
+        <xNome>RESTAURANTE DEMONSTRACAO LTDA</xNome>
+      </dest>
+      <det nItem="1">
+        <prod>
+          <cProd>A-310</cProd>
+          <cEAN>7898000300301</cEAN>
+          <xProd>MASSA GRANO DURO SPAGHETTI 1KG</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>PCT</uCom>
+          <qCom>10.0000</qCom>
+          <vUnCom>21.9000</vUnCom>
+          <vProd>219.00</vProd>
+        </prod>
+      </det>
+      <det nItem="2">
+        <prod>
+          <cProd>A-422</cProd>
+          <cEAN>7898000300318</cEAN>
+          <xProd>AZEITE EXTRA VIRGEM 500ML</xProd>
+          <NCM>07020000</NCM>
+          <CFOP>5102</CFOP>
+          <uCom>UN</uCom>
+          <qCom>6.0000</qCom>
+          <vUnCom>29.5000</vUnCom>
+          <vProd>177.00</vProd>
+        </prod>
+      </det>
+      <total>
+        <ICMSTot>
+          <vProd>396.00</vProd>
+          <vNF>396.00</vNF>
+        </ICMSTot>
+      </total>
+      <cobr>
+        <dup><nDup>001</nDup><dVenc>2026-11-21</dVenc><vDup>198.00</vDup></dup>
+        <dup><nDup>002</nDup><dVenc>2026-12-07</dVenc><vDup>198.00</vDup></dup>
+      </cobr>
+    </infNFe>
+  </NFe>
+</nfeProc>
