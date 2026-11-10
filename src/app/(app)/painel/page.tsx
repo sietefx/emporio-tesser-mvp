@@ -63,7 +63,7 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
               {pendentes.length > 0 ? (
                 <>
                   <p>
-                    A mais antiga foi emitida em {data(pendentes[0].emitidaEm)}. O custo dos insumos e o estoque só mudam depois que você
+                    A primeira da fila foi emitida em {data(pendentes[0].emitidaEm)}. O custo dos insumos e o estoque só mudam depois que você
                     conferir e aprovar.
                   </p>
                   <Link className="btn btn-primary btn-block" href={`/notas/${pendentes[0].id}`}>

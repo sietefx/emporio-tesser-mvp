@@ -104,7 +104,11 @@ async function main() {
   })
 
   const pasta = join(process.cwd(), 'fixtures', 'notas')
-  for (const arquivo of readdirSync(pasta).filter((f) => f.endsWith('.xml')).sort()) {
+  // ordem de chegada: a do hortifrúti é a primeira da fila
+  const ordem = ['nfe-4512.xml', 'nfe-8830.xml', 'nfe-15207.xml']
+  const arquivos = readdirSync(pasta).filter((f) => f.endsWith('.xml'))
+  arquivos.sort((a, b) => (ordem.indexOf(a) + 1 || 99) - (ordem.indexOf(b) + 1 || 99))
+  for (const arquivo of arquivos) {
     const r = await importarNota(db, readFileSync(join(pasta, arquivo), 'utf8'))
     console.log(`${arquivo}: ${r.tipo}`)
   }

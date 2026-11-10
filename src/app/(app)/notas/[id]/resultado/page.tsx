@@ -5,6 +5,7 @@ import { exigirPapel } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { pendenciasConciliacao, pratosComCmv } from '@/lib/consultas'
 import { data, hora, pct, qtd, reais } from '@/lib/formato'
+import { COMISSAO_DELIVERY } from '@/lib/cmv'
 
 function Variacao({ antes, depois, tipo }: { antes: number; depois: number; tipo: 'pct' | 'reais' }) {
   const dif = depois - antes
@@ -117,7 +118,7 @@ export default async function Resultado({ params }: { params: Promise<{ id: stri
                   <div className="channel">
                     <h3>Delivery</h3>
                     <span className="muted small">Preço</span><b>{reais(p.precoDelivery)}</b>
-                    <span className="muted small">já descontada a comissão</span>
+                    <span className="muted small">comissão de {pct(COMISSAO_DELIVERY)} descontada no CMV</span>
                     <span className="muted small">CMV</span><b>{pct(a.delivery.cmv)} → {pct(p.delivery.cmv)}</b>
                     <Variacao antes={a.delivery.cmv} depois={p.delivery.cmv} tipo="pct" />
                     <span className="muted small">Margem</span><b>{reais(p.delivery.margem)}</b>

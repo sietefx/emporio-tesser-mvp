@@ -10,7 +10,6 @@ const cabecalhos = [
 ]
 
 const config: NextConfig = {
-  output: 'standalone',
   poweredByHeader: false,
   serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
   async headers() {
