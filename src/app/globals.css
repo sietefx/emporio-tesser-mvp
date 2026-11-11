@@ -111,3 +111,6 @@ table.simples { width: 100%; border-collapse: collapse; font-size: 15px; }
 table.simples th, table.simples td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
 table.simples td.num, table.simples th.num { text-align: right; }
 .tabela { overflow-x: auto; }
+
+.memoria { display: flex; flex-direction: column; gap: 4px; font-size: 14.5px; background: #f7f4ee; border-radius: 10px; padding: 10px 12px; font-variant-numeric: tabular-nums; }
+.memoria .reason { font-size: 14.5px; }
