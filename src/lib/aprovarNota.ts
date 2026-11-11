@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@/generated/prisma/client'
 import { pendenciasDosItens } from './conferencia'
+import { calcularEntradas } from './entradas'
 
 export class AprovacaoBloqueada extends Error {}
 
@@ -29,39 +30,45 @@ export async function aprovarNota(db: PrismaClient, notaId: number, usuarioId: n
     })
     if (marcada.count === 0) throw new AprovacaoBloqueada('Esta nota já foi aprovada.')
 
-    for (const item of nota.itens) {
-      const insumoId = item.insumoId!
-      const qtdRecebida = Number(item.quantidadeRecebida)
-      const custoNovo = Number(item.valorTotal) / qtdRecebida
-      const insumo = await tx.insumo.findUniqueOrThrow({ where: { id: insumoId } })
+    const itens = nota.itens.map((i) => ({
+      insumoId: i.insumoId!,
+      quantidadeRecebida: Number(i.quantidadeRecebida),
+      valorTotal: Number(i.valorTotal),
+    }))
+    const insumos = await tx.insumo.findMany({
+      where: { id: { in: [...new Set(itens.map((i) => i.insumoId))] } },
+      select: { id: true, custoUnitario: true },
+    })
+    const custosAtuais = new Map(insumos.map((i) => [i.id, i.custoUnitario === null ? null : Number(i.custoUnitario)]))
+    const entradas = calcularEntradas(itens, custosAtuais)
 
+    for (const e of entradas) {
       await tx.insumo.update({
-        where: { id: insumoId },
-        data: { custoUnitario: custoNovo, saldo: { increment: qtdRecebida } },
+        where: { id: e.insumoId },
+        data: { custoUnitario: e.custoUnitario, saldo: { increment: e.quantidade } },
       })
-      await tx.movimentoEstoque.create({
-        data: { insumoId, notaId, quantidade: qtdRecebida, custoUnitario: custoNovo, custoAnterior: insumo.custoUnitario },
-      })
+    }
+    await tx.movimentoEstoque.createMany({ data: entradas.map((e) => ({ ...e, notaId })) })
+
+    for (const item of nota.itens) {
       await tx.vinculoFornecedor.upsert({
         where: { fornecedorId_codigoProduto: { fornecedorId: nota.fornecedorId, codigoProduto: item.codigoProduto } },
-        update: { insumoId, fatorConversao: item.fatorConversao },
-        create: { fornecedorId: nota.fornecedorId, codigoProduto: item.codigoProduto, insumoId, fatorConversao: item.fatorConversao },
+        update: { insumoId: item.insumoId!, fatorConversao: item.fatorConversao },
+        create: { fornecedorId: nota.fornecedorId, codigoProduto: item.codigoProduto, insumoId: item.insumoId!, fatorConversao: item.fatorConversao },
       })
     }
 
     const parcelas = nota.parcelas.length
       ? nota.parcelas
       : [{ numero: '001', vencimento: nota.emitidaEm, valor: nota.valorTotal }]
-    for (const p of parcelas) {
-      await tx.contaPagar.create({
-        data: {
-          notaId,
-          fornecedorId: nota.fornecedorId,
-          descricao: `NF-e ${nota.numero} parcela ${p.numero}`,
-          valor: p.valor,
-          vencimento: p.vencimento,
-        },
-      })
-    }
+    await tx.contaPagar.createMany({
+      data: parcelas.map((p) => ({
+        notaId,
+        fornecedorId: nota.fornecedorId,
+        descricao: `NF-e ${nota.numero} parcela ${p.numero}`,
+        valor: p.valor,
+        vencimento: p.vencimento,
+      })),
+    })
   })
 }

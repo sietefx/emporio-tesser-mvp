@@ -2,7 +2,7 @@
   "name": "emporio-tesser-mvp",
   "version": "1.0.0",
   "private": true,
-  "description": "MVP de estudo: conferência de notas de compra (NF-e), custo e CMV por canal para o Empório Tesser.",
+  "description": "MVP de estudo: confer\u00eancia de notas de compra (NF-e), custo e CMV por canal para o Emp\u00f3rio Tesser.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -11,7 +11,8 @@
     "test": "vitest run",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",
@@ -31,6 +32,7 @@
     "@types/pg": "8.15.5",
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",
+    "@vitest/coverage-v8": "3.2.4",
     "dotenv": "^17.2.2",
     "prisma": "7.10.1",
     "tsx": "4.20.5",
