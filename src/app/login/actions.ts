@@ -18,12 +18,18 @@ export type EstadoLogin = { erro?: string; email?: string }
 const ERRO_GENERICO = 'E-mail ou senha incorretos.'
 
 export async function entrar(_: EstadoLogin, form: FormData): Promise<EstadoLogin> {
-  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local'
-  if (!registrarTentativa(`login:${ip}`)) {
+  const dados = entrada.safeParse({ email: form.get('email'), senha: form.get('senha') })
+
+  // o primeiro IP do x-forwarded-for vem do cliente e pode ser forjado; o último é o que o proxy (CDN) acrescentou.
+  // Também limita por e-mail, para que trocar de IP não libere tentativas sem fim contra a mesma conta.
+  const ip = (await headers()).get('x-forwarded-for')?.split(',').pop()?.trim() || 'local'
+  const email = dados.success ? dados.data.email : 'invalido'
+  const okIp = registrarTentativa(`login:ip:${ip}`)
+  const okEmail = registrarTentativa(`login:email:${email}`)
+  if (!okIp || !okEmail) {
     return { erro: 'Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.' }
   }
 
-  const dados = entrada.safeParse({ email: form.get('email'), senha: form.get('senha') })
   if (!dados.success) return { erro: ERRO_GENERICO, email: String(form.get('email') ?? '') }
 
   const usuario = await prisma.usuario.findUnique({ where: { email: dados.data.email } })
