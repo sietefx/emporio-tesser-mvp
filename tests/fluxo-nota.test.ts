@@ -30,6 +30,21 @@ describe.runIf(temBanco)('fluxo da nota 4512 no banco', () => {
     expect(await db.notaCompra.count()).toBe(antes)
   })
 
+  it('importa uma nota nova na fila como pendente, sem mexer no estoque', async () => {
+    const xml = readFileSync('fixtures/notas/nfe-8830.xml', 'utf8')
+    await db.notaCompra.deleteMany({ where: { numero: '8830' } })
+    process.env.CNPJ_RESTAURANTE = '00000000000000' // força o aviso de outro destinatário
+    const r = await importarNota(db, xml)
+    process.env.CNPJ_RESTAURANTE = '99888777000166'
+    expect(r).toMatchObject({ tipo: 'importada', numero: '8830', outroDestinatario: true })
+    const nota = await db.notaCompra.findFirstOrThrow({ where: { numero: '8830' }, include: { itens: true, parcelas: true } })
+    expect(nota.status).toBe('PENDENTE')
+    expect(nota.itens).toHaveLength(2)
+    expect(nota.itens.every((i) => i.insumoId === null)).toBe(true)
+    expect(nota.parcelas).toHaveLength(1)
+    expect(await db.movimentoEstoque.count()).toBe(0)
+  })
+
   it('sugere o insumo dos itens já ligados antes e deixa o manjericão sem insumo', async () => {
     const itens = await db.itemNota.findMany({ where: { notaId }, orderBy: { numeroItem: 'asc' }, include: { insumo: true } })
     expect(itens[0].insumo?.nome).toBe('Tomate italiano')
