@@ -1,0 +1,28 @@
+name: Monitor
+
+# Checa a aplicação publicada a cada 15 minutos. Se a rota de saúde não responder 200
+# (app fora do ar ou banco indisponível), o job falha e o GitHub avisa por e-mail.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  saude:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: GET /api/saude
+        env:
+          URL: ${{ vars.APP_URL }}
+        run: |
+          for tentativa in 1 2 3; do
+            inicio=$(date +%s%3N)
+            if resposta=$(curl -fsS --max-time 20 "$URL/api/saude"); then
+              echo "ok em $(( $(date +%s%3N) - inicio )) ms: $resposta"
+              exit 0
+            fi
+            echo "tentativa $tentativa falhou"; sleep 20
+          done
+          echo "::error::$URL/api/saude não respondeu após 3 tentativas"
+          exit 1
