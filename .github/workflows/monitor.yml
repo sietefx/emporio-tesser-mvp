@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/monitor.yml]
 
 jobs:
   saude:
@@ -14,7 +17,7 @@ jobs:
     steps:
       - name: GET /api/saude
         env:
-          URL: ${{ vars.APP_URL }}
+          URL: ${{ vars.APP_URL || 'https://emporio-tesser-mvp.vercel.app' }}
         run: |
           for tentativa in 1 2 3; do
             inicio=$(date +%s%3N)
