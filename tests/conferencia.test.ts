@@ -15,6 +15,12 @@ describe('conferência da nota', () => {
     )
   })
 
+  it('lista todas as pendências quando há mais de uma', () => {
+    expect(motivoBloqueio([{ numeroItem: 1, insumoId: null, quantidadeRecebida: 1 }, { numeroItem: 2, insumoId: 2, quantidadeRecebida: null }])).toBe(
+      'Faltam 2 itens para aprovar: item 1 sem insumo; item 2 sem quantidade recebida.',
+    )
+  })
+
   it('aponta quantidade zerada', () => {
     expect(pendenciasDosItens([{ ...ok, quantidadeRecebida: 0 }])).toEqual(['Item 1 sem quantidade recebida'])
   })

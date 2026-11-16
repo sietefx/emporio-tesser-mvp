@@ -45,7 +45,11 @@ export function hashXml(xml: string) {
   return createHash('sha256').update(xml.trim()).digest('hex')
 }
 
+// NF-e válida nunca traz DOCTYPE; recusar antes do parser evita expansão de entidades (XXE / "billion laughs")
+const DECLARACAO_PROIBIDA = /<!(DOCTYPE|ENTITY)/i
+
 export function lerNfe(xml: string): NotaNfe {
+  if (DECLARACAO_PROIBIDA.test(xml)) throw new NfeInvalida('O XML contém declarações que não são permitidas em uma NF-e (DOCTYPE/ENTITY).')
   let doc: any
   try {
     doc = parser.parse(xml)

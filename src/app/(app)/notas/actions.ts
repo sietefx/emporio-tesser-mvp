@@ -57,12 +57,21 @@ export async function salvarItem(_: EstadoItem, form: FormData): Promise<EstadoI
   if (!dados.success) return { erro: 'Informe valores maiores que zero no fator e na quantidade recebida.' }
 
   const { notaId, itemId, insumoId, fator, quantidade } = dados.data
-  // só altera item de nota pendente; o where garante que o item é desta nota
-  const r = await prisma.itemNota.updateMany({
-    where: { id: itemId, notaId, nota: { status: 'PENDENTE' } },
-    data: { insumoId, fatorConversao: fator, quantidadeRecebida: quantidade },
-  })
-  if (r.count === 0) return { erro: 'Esta nota não pode mais ser alterada.' }
+  if (insumoId && !(await prisma.insumo.findUnique({ where: { id: insumoId }, select: { id: true } }))) {
+    return { erro: 'Esse insumo não existe mais. Busque de novo.' }
+  }
+
+  try {
+    // só altera item de nota pendente; o where garante que o item é desta nota
+    const r = await prisma.itemNota.updateMany({
+      where: { id: itemId, notaId, nota: { status: 'PENDENTE' } },
+      data: { insumoId, fatorConversao: fator, quantidadeRecebida: quantidade },
+    })
+    if (r.count === 0) return { erro: 'Esta nota não pode mais ser alterada.' }
+  } catch (e) {
+    console.error('falha ao salvar item da nota', e)
+    return { erro: 'Não foi possível salvar o item agora. Tente de novo.' }
+  }
 
   revalidatePath(`/notas/${notaId}`)
   return { salvoEm: Date.now() }

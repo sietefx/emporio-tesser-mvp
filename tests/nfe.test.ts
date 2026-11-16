@@ -26,6 +26,11 @@ describe('lerNfe', () => {
     expect(() => lerNfe('<pedido><id>1</id></pedido>')).toThrow(NfeInvalida)
   })
 
+  it('recusa XML com DOCTYPE ou ENTITY (expansão de entidades)', () => {
+    const malicioso = xml.replace('<nfeProc', '<!DOCTYPE x [<!ENTITY a "aaaa"><!ENTITY b "&a;&a;&a;">]>\n<nfeProc')
+    expect(() => lerNfe(malicioso)).toThrow(/DOCTYPE/)
+  })
+
   it('recusa chave com tamanho errado', () => {
     expect(() => lerNfe(xml.replace(/Id="NFe\d+"/, 'Id="NFe123"'))).toThrow(/44 dígitos/)
   })
