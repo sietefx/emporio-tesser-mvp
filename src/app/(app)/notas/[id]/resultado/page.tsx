@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db'
 import { pendenciasConciliacao, pratosComCmv } from '@/lib/consultas'
 import { data, hora, pct, qtd, reais } from '@/lib/formato'
 import { COMISSAO_DELIVERY } from '@/lib/cmv'
+import { memoriaDoCmv } from '@/lib/memoria'
 
 function Variacao({ antes, depois, tipo }: { antes: number; depois: number; tipo: 'pct' | 'reais' }) {
   const dif = depois - antes
@@ -75,6 +76,7 @@ export default async function Resultado({ params }: { params: Promise<{ id: stri
                 return (
                   <p key={m.id} className="small muted">
                     {m.insumo.nome}: de {reais(a)} para {reais(d)} por {m.insumo.unidade} ({d > a ? 'subiu' : 'baixou'} {Math.round(Math.abs(d / a - 1) * 100)}%)
+                    {' · '}{reais(Number(m.custoUnitario) * Number(m.quantidade))} ÷ {qtd(Number(m.quantidade))} {m.insumo.unidade}
                   </p>
                 )
               })}
@@ -114,6 +116,7 @@ export default async function Resultado({ params }: { params: Promise<{ id: stri
                     <span className="muted small">CMV</span><b>{pct(a.salao.cmv)} → {pct(p.salao.cmv)}</b>
                     <Variacao antes={a.salao.cmv} depois={p.salao.cmv} tipo="pct" />
                     <span className="muted small">Margem</span><b>{reais(p.salao.margem)}</b>
+                    <span className="small muted">{memoriaDoCmv(p.custo, p.precoSalao)}</span>
                   </div>
                   <div className="channel">
                     <h3>Delivery</h3>
@@ -122,6 +125,7 @@ export default async function Resultado({ params }: { params: Promise<{ id: stri
                     <span className="muted small">CMV</span><b>{pct(a.delivery.cmv)} → {pct(p.delivery.cmv)}</b>
                     <Variacao antes={a.delivery.cmv} depois={p.delivery.cmv} tipo="pct" />
                     <span className="muted small">Margem</span><b>{reais(p.delivery.margem)}</b>
+                    <span className="small muted">{memoriaDoCmv(p.custo, p.precoDelivery, COMISSAO_DELIVERY)}</span>
                   </div>
                 </div>
               </div>

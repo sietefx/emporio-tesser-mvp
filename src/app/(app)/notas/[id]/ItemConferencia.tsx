@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { Check, CircleX, Link2, Search, TriangleAlert } from 'lucide-react'
 import { salvarItem, type EstadoItem } from '../actions'
+import { memoriaDoItem, quantidadeEsperada } from '@/lib/memoria'
 
 type Insumo = { id: number; nome: string; unidade: string }
 type Props = {
@@ -22,10 +23,12 @@ type Props = {
 }
 
 const semAcento = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+const lerNumero = (t: string) => Number(t.replace(',', '.'))
 const numeroValido = (t: string) => {
-  const n = Number(t.replace(',', '.'))
+  const n = lerNumero(t)
   return Number.isFinite(n) && n > 0
 }
+const paraCampo = (n: number) => String(n).replace('.', ',')
 
 export function ItemConferencia({ notaId, item, insumos }: Props) {
   const [estado, acao, salvando] = useActionState<EstadoItem, FormData>(salvarItem, {})
@@ -145,7 +148,11 @@ export function ItemConferencia({ notaId, item, insumos }: Props) {
                 name="fator"
                 inputMode="decimal"
                 value={fator}
-                onChange={(e) => setFator(e.target.value)}
+                onChange={(e) => {
+                  setFator(e.target.value)
+                  // recalcula o recebido pela nota; o usuário ainda pode ajustar se chegou diferente
+                  if (numeroValido(e.target.value)) setQuantidade(paraCampo(quantidadeEsperada(item.quantidade, lerNumero(e.target.value))))
+                }}
                 aria-invalid={!fatorOk}
                 aria-describedby={`ajuda-fator-${item.id}`}
               />
@@ -172,6 +179,28 @@ export function ItemConferencia({ notaId, item, insumos }: Props) {
             ? `A nota vem em ${item.unidade} e o estoque usa ${escolhido!.unidade}: o fator diz quantos ${escolhido!.unidade} vêm em cada ${item.unidade}.`
             : 'Use 1 quando a unidade da nota for a mesma do estoque.'}
         </p>
+        {qtdOk && fatorOk && (() => {
+          const m = memoriaDoItem({
+            quantidadeNota: item.quantidade,
+            unidadeNota: item.unidade,
+            fator: lerNumero(fator),
+            unidadeEstoque: escolhido?.unidade ?? item.unidade.toLowerCase(),
+            quantidadeRecebida: lerNumero(quantidade),
+            valorTotal: item.valorTotal,
+          })
+          return (
+            <div className="memoria" aria-label="Como foi calculado">
+              <p><span className="muted">Conversão:</span> {m.conversao}</p>
+              {m.custo && <p><span className="muted">Custo:</span> {m.custo}</p>}
+              {m.divergente && (
+                <p className="reason" role="status">
+                  <TriangleAlert className="ic ic-sm" aria-hidden />
+                  Recebido diferente da nota (esperado {paraCampo(m.esperada)} {escolhido?.unidade ?? item.unidade.toLowerCase()}).
+                </p>
+              )}
+            </div>
+          )
+        })()}
         {(!qtdOk || !fatorOk) && (
           <p className="field-err" role="alert"><CircleX className="ic ic-sm" aria-hidden />Informe valores maiores que zero.</p>
         )}
