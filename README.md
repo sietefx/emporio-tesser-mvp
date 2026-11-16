@@ -1,4 +1,4 @@
-# Empório Tesser — MVP de conferência de notas e CMV
+# Brielab ERP — MVP de conferência de notas e CMV
 
 MVP feito para a Experiência Prática de Projeto de Software (ADS, Cruzeiro do Sul Virtual).
 
@@ -45,6 +45,13 @@ npm run lint    # checagem de tipos
 ```
 
 O CI (GitHub Actions) sobe um PostgreSQL, aplica as migrações, roda o seed, os testes, o build e o `npm audit`.
+
+## Produção e monitoramento
+
+- App publicado na Vercel (link no topo do repositório), banco PostgreSQL no Supabase (São Paulo), só com dados fictícios.
+- A aplicação conecta com um usuário de banco próprio, com permissão apenas de leitura e escrita nas tabelas.
+- `GET /api/saude` responde 200 quando app e banco estão de pé e 503 quando o banco cai.
+- O workflow `Monitor` chama essa rota a cada 15 minutos; se falhar três vezes seguidas, o job fica vermelho e o GitHub avisa por e-mail. Os logs de erro ficam no painel da Vercel.
 
 ## Organização
 
